@@ -13,21 +13,31 @@ print(num_user[0])
 conv = []
 for i in range(1,num_user[0]):
     received = c.execute("select text, date from message where handle_id="+str(i)+" and is_from_me=0;")
+    income = received.fetchall()
     sent = c.execute("select text, date from message where handle_id="+str(i)+" and is_from_me=1;")
-    conv.append((received.fetchall(),sent.fetchall()))
+    outgo = sent.fetchall()
+    entry = (income,outgo)
+    conv.append(entry)
 text_words = c.execute("select text from message;")
 
-
+#print(conv[420][1])
 #flatten lists of received and sent messages in tuple form, make new list from recieved that has all received texts, dates, and sender info in individual tuples.  Then concatenate the lists and sort by date.
-for c in conv:
-    for m in c:
-        print(m)
+def flatten(thread):
+    flat = []
+    for i in range(len(thread)):
+        for item in thread[i]:
+            flat.append((item[0],item[1], i))
+    flat.sort(key=lambda x: x[1])
+    return(flat)
+print(flatten(conv[420]))
+inputs = []
+for entry in conv:
+    inputs.append(flatten(entry))
+print(inputs)
 
-for w in text_words:
-    if w is not None:
-        #print(w)
-        pass
-
+for item in inputs:
+    for i in range(len(item)):
+        if(i
 while(running == True):
     text = input("")
     words = text.split(' ')
