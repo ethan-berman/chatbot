@@ -26,18 +26,54 @@ def flatten(thread):
     flat = []
     for i in range(len(thread)):
         for item in thread[i]:
-            flat.append((item[0],item[1], i))
+            flat.append([item[0],item[1], i])
     flat.sort(key=lambda x: x[1])
     return(flat)
-print(flatten(conv[420]))
+#print(flatten(conv[420]))
 inputs = []
 for entry in conv:
     inputs.append(flatten(entry))
-print(inputs)
-
+#print(inputs)
+conv_list = []
+inputs = list(filter(None,inputs))
 for item in inputs:
-    for i in range(len(item)):
-        if(i
+    if item == []:
+        pass
+    else:
+        starter = item[0][2]
+        cindex = []
+        for i in range(1, len(item)):
+            if(item[i][2] == starter):
+                if(len(item[i-1]) != 0 and type(item[i][0]) == str and type(item[i-1][0]) == str):
+                    print(item[i-1])
+                    print(item[i-1][0])
+                    item[i-1][0] = item[i-1][0] + " " + item[i][0]
+                    item[i] = []
+            else:
+                starter = item[i][2]
+    for thread in item:
+        for value in range(len(thread)):
+            if(value==None):
+                thread.remove(None)
+    item = list(filter(None,item))
+    dict_entry = {}
+    if(item[0][2] == 0):
+        for i in range(0,(len(item)-1),2):
+            dict_entry[item[i][0]] = item[i+1][0]
+    else:
+        for i in range(1,(len(item)-1),2):
+            dict_entry[item[i][0]] = item[i+1][0]
+    '''
+    for i in range(0,len(item), 2):
+        if(item[i][2] == 0):
+            #if message is from other person, my reply is output
+            dict_entry[item[i][0]] = item[i+1][0]
+        else:
+            pass
+    '''
+    conv_list.append(dict_entry)
+print(conv_list)
+
 while(running == True):
     text = input("")
     words = text.split(' ')
