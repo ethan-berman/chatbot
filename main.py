@@ -3,6 +3,8 @@ import sqlite3
 from pathlib import Path
 #trademark Ethan Berman
 #add functionality to predict reply that program will receive, and then train on loss to the actual reply it receives, so that through continued talking the program gets closer and closer to saying what I would actually say
+#use dsouzarc imessage parsing to get messages that are not part of groupchats.  Link to his repo in readme.
+
 running = True
 known_words = []
 home  = str(Path.home())
@@ -13,14 +15,14 @@ num_user = max(c.execute("select ROWID from handle;"))
 print(num_user[0])
 conv = []
 for i in range(1,num_user[0]):
-    received = c.execute("select text, date from message where handle_id="+str(i)+" and is_from_me=0 and group_title is null;")
+    received = c.execute("SELECT text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=0;")
     income = received.fetchall()
-    sent = c.execute("select text, date from message where handle_id="+str(i)+" and is_from_me=1 and group_title is null;")
+    sent = c.execute("SELECT text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=1;")
     outgo = sent.fetchall()
     entry = (income,outgo)
     conv.append(entry)
 text_words = c.execute("select text from message;")
-
+print(conv)
 #print(conv[420][1])
 #flatten lists of received and sent messages in tuple form, make new list from recieved that has all received texts, dates, and sender info in individual tuples.  Then concatenate the lists and sort by date.
 def flatten(thread):
