@@ -15,14 +15,15 @@ num_user = max(c.execute("select ROWID from handle;"))
 print(num_user[0])
 conv = []
 for i in range(1,num_user[0]):
-    received = c.execute("SELECT text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=0;")
+    received = c.execute("SELECT distinct text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=0;")
     income = received.fetchall()
-    sent = c.execute("SELECT text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=1;")
+    sent = c.execute("SELECT distinct text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=1;")
     outgo = sent.fetchall()
     entry = (income,outgo)
+    print(outgo)
     conv.append(entry)
 text_words = c.execute("select text from message;")
-print(conv)
+#print(conv)
 #print(conv[420][1])
 #flatten lists of received and sent messages in tuple form, make new list from recieved that has all received texts, dates, and sender info in individual tuples.  Then concatenate the lists and sort by date.
 def flatten(thread):
@@ -40,6 +41,22 @@ for entry in conv:
 conv_list = []
 inputs = list(filter(None,inputs))
 clean_inputs = []
+
+def concat(message):
+    #input  amessage and output
+    outputs = []
+    start = message[0][2]
+    sample_entry = ["",0,start]
+    for item in message:
+        if(item[0] is not None):
+            if(item[2] == start):
+                sample_entry[0] = sample_entry[0] + item[0]
+                sample_entry[1] = item[1]
+            else:
+                start = item[2]
+                outputs.append(sample_entry)
+                sample_entry = [item[0], item[1], start]
+    return(outputs)
 for item in inputs:
     if item == []:
         pass
@@ -60,6 +77,7 @@ for item in inputs:
             if(value==None):
                 thread.remove(None)
     item = list(filter(None,item))
+    '''
     dict_entry = {}
     if(item[0][2] == 0):
         for i in range(0,(len(item)-1),2):
@@ -67,6 +85,7 @@ for item in inputs:
     else:
         for i in range(1,(len(item)-1),2):
             dict_entry[item[i][0]] = item[i+1][0]
+    '''
     '''
     for i in range(0,len(item), 2):
         if(item[i][2] == 0):
@@ -76,10 +95,13 @@ for item in inputs:
             pass
     '''
     clean_inputs.append(item)
-    conv_list.append(dict_entry)
 #print(conv_list)
-new_attempt = []
-for item in clean_inputs:
+new_attempt = [] 
+fresh_inputs = []
+for item in inputs:
+    fresh_inputs.append(list(filter(None,item)))
+for item in fresh_inputs:
+    item = concat(item)
     dict_entry = {}
     for i in range(0,len(item)-2,2):
         if(item[0][2] == 0):
@@ -98,6 +120,8 @@ for item in clean_inputs:
             dict_entry[item[i][0]] = item[i+1][0]
     '''
     new_attempt.append(dict_entry)
+
+print(new_attempt)
 while(running == True):
     text = input("")
     words = text.split(' ')
