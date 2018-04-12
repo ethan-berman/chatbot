@@ -12,7 +12,6 @@ fd = sqlite3.connect(home + "/Library/Messages/chat.db")
 c = fd.cursor()
 
 num_user = max(c.execute("select ROWID from handle;"))
-print(num_user[0])
 conv = []
 for i in range(1,num_user[0]):
     received = c.execute("SELECT distinct text, date FROM chat INNER JOIN handle ON chat.chat_identifier = handle.id INNER JOIN chat_handle_join ON  handle.ROWID= chat_handle_join.handle_id INNER JOIN message ON message.handle_id = chat_handle_join.handle_id where message.handle_id=" +str(i) +" and message.is_from_me=0;")
@@ -22,10 +21,6 @@ for i in range(1,num_user[0]):
     entry = (income,outgo)
     print(outgo)
     conv.append(entry)
-text_words = c.execute("select text from message;")
-#print(conv)
-#print(conv[420][1])
-#flatten lists of received and sent messages in tuple form, make new list from recieved that has all received texts, dates, and sender info in individual tuples.  Then concatenate the lists and sort by date.
 def flatten(thread):
     flat = []
     for i in range(len(thread)):
@@ -33,10 +28,11 @@ def flatten(thread):
             flat.append([item[0],item[1], i])
     flat.sort(key=lambda x: x[1])
     return(flat)
-#print(flatten(conv[420]))
 inputs = []
 for entry in conv:
-    inputs.append(flatten(entry))
+    cleaned = flatten(entry)
+    cleaned = list(filter(None,cleaned))
+    inputs.append(cleaned)
 #print(inputs)
 conv_list = []
 inputs = list(filter(None,inputs))
@@ -50,13 +46,14 @@ def concat(message):
     for item in message:
         if(item[0] is not None):
             if(item[2] == start):
-                sample_entry[0] = sample_entry[0] + item[0]
+                sample_entry[0] = sample_entry[0] + " " + item[0]
                 sample_entry[1] = item[1]
             else:
                 start = item[2]
                 outputs.append(sample_entry)
                 sample_entry = [item[0], item[1], start]
     return(outputs)
+'''
 for item in inputs:
     if item == []:
         pass
@@ -77,7 +74,6 @@ for item in inputs:
             if(value==None):
                 thread.remove(None)
     item = list(filter(None,item))
-    '''
     dict_entry = {}
     if(item[0][2] == 0):
         for i in range(0,(len(item)-1),2):
@@ -85,22 +81,23 @@ for item in inputs:
     else:
         for i in range(1,(len(item)-1),2):
             dict_entry[item[i][0]] = item[i+1][0]
-    '''
-    '''
     for i in range(0,len(item), 2):
         if(item[i][2] == 0):
             #if message is from other person, my reply is output
             dict_entry[item[i][0]] = item[i+1][0]
         else:
             pass
-    '''
+
     clean_inputs.append(item)
+'''
 #print(conv_list)
 new_attempt = [] 
+'''
 fresh_inputs = []
 for item in inputs:
     fresh_inputs.append(list(filter(None,item)))
-for item in fresh_inputs:
+'''
+for item in inputs:
     item = concat(item)
     dict_entry = {}
     for i in range(0,len(item)-2,2):
@@ -110,7 +107,6 @@ for item in fresh_inputs:
         else:
             #if first message is outgoing
             dict_entry[item[i+1][0]] = item[i+2][0]
-
     '''
     if(item[0][2] == 0):
         for i in range(0,len(item)-1,2):
@@ -129,9 +125,6 @@ while(running == True):
         if w not in known_words:
             known_words.append(w)
     print(known_words)
-    if(int(text) < len(new_attempt)):
-        print(new_attempt[int(text)])
-
     if(text == ".quit"):
         running =  False
 
