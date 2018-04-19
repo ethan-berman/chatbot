@@ -91,7 +91,7 @@ for item in inputs:
     clean_inputs.append(item)
 '''
 #print(conv_list)
-new_attempt = [] 
+conversation_dictionary = [] 
 '''
 fresh_inputs = []
 for item in inputs:
@@ -115,9 +115,9 @@ for item in inputs:
         for i in range(1,len(item)-1,2):
             dict_entry[item[i][0]] = item[i+1][0]
     '''
-    new_attempt.append(dict_entry)
-
-print(new_attempt)
+    conversation_dictionary.append(dict_entry)
+conversation_dictionary = list(filter(None,conversation_dictionary))
+print(conversation_dictionary)
 while(running == True):
     text = input("")
     words = text.split(' ')
@@ -125,6 +125,9 @@ while(running == True):
         if w not in known_words:
             known_words.append(w)
     print(known_words)
+    for item in conversation_dictionary:
+        if(item.get(text) is not None):
+            print(item.get(text))
     if(text == ".quit"):
         running =  False
 
