@@ -1,15 +1,15 @@
 from textgenrnn import textgenrnn
 
-MODEL_NAME = 'peter_emails'
-NUM = 10
-TEMPERATURE = 0.6
+MODEL_NAME = 'berman'
 
 model = textgenrnn(MODEL_NAME + '.hdf5')
 
-generated = model.generate(NUM, return_as_list=True, temperature=TEMPERATURE)
+def generate(num, temperature):
+    generated = model.generate(num, return_as_list=True, temperature=temperature)
+    for message in generated:
+        message = message.replace('%%', '\n')
+        print(message)
+        print()
+        print('-'*100)
 
-for message in generated:
-    message = message.replace('%%', '\n')
-    print(message)
-    print()
-    print('-'*100)
+generate(1, 0.8)
