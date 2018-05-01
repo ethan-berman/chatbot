@@ -1,0 +1,5 @@
+# TRAIN
+py -m nmt.nmt --src=in --tgt=out --vocab_prefix=./seq2seqemail/vocab --train_prefix=./seq2seqemail/email --dev_prefix=./seq2seqemail/test --test_prefix=./seq2seqemail/test --out_dir=./seq2seqemail/nmt_model --num_train_steps=10000 --steps_per_stats=100 --num_layers=2 --num_units=128 --dropout=0.2 --metrics=bleu
+
+# INFERENCE
+py -m nmt.nmt --out_dir=./seq2seqemail/nmt_model --inference_input_file=./seq2seqemail/inference.in --inference_output_file=./seq2seqemail/inference.out
