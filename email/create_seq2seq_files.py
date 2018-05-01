@@ -1,4 +1,5 @@
 import pickle
+import re
 
 mail = pickle.load(open('messages.pickle', 'rb'))
 
@@ -39,10 +40,17 @@ for message in mail:
     incoming = incoming.strip()
     response = response.strip()
 
+    # Remove response prefixes
+
+    incoming = re.sub(r'On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).+wrote', '', incoming.decode())
+    response = re.sub(r'On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).+wrote', '', response.decode())
+    incoming = re.sub(r'On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).+\@[a-zA-Z]+\.[a-zA-Z]+', '', incoming)
+    response = re.sub(r'On (?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).+\@[a-zA-Z]+\.[a-zA-Z]+', '', response)
+
     # Remove punctuation
-    punctuation = b'.,()!?/\\:\'"*[]@#$%^&-+_=;'
-    incoming = ''.join([chr(ch) for ch in incoming if ch not in punctuation])
-    response = ''.join([chr(ch) for ch in response if ch not in punctuation])
+    punctuation = '.,()!?/\\:\'"*[]@#$%^&-+_=;'
+    incoming = ''.join([ch for ch in incoming if ch not in punctuation])
+    response = ''.join([ch for ch in response if ch not in punctuation])
 
     print(incoming)
     print('-'*50)
