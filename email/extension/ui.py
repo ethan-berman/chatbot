@@ -1,3 +1,4 @@
+from textgenrnn import textgenrnn
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter import ttk
@@ -13,6 +14,7 @@ email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 
 root = tk.Tk()
 
+model = None
 mbox_filename = None
 messages = []
 extracting = False
@@ -173,17 +175,41 @@ def train():
     training = True
 
     def func():
+        global training
         num_epochs = num_epochs_scale.get()
         run_command('./dist/model.exe --model_name=mail --input_file=mail.txt --num_epochs=%s' % num_epochs)
         training = False
 
     threading.Thread(target=func).start()
 
+def load_model():
+    global model
+    if model is not None:
+        return
+    model = textgenrnn('mail.hdf5')
+
+def generate():
+    load_model()
+    generated = model.generate(5, return_as_list=True, temperature=temperature_scale.get())
+
+
+    train_output_text.config(state='normal')
+    train_output_text.delete('1.0', tk.END)
+
+    for message in generated:
+        message = message.replace('<ret>', '\n')
+        train_output_text.insert('1.0', message)
+        train_output_text.insert('1.0', '\n')
+        train_output_text.insert('1.0', '-'*100)
+        train_output_text.insert('1.0', '\n')
+        
+    train_output_text.config(state='disabled')
+
 load_emails_button = ttk.Button(root, text='Extract Emails', command=lambda:extract_emails())
-load_emails_button.grid(row=3, column=0, columnspan=2)
+load_emails_button.grid(row=3, column=0)
 
 progressbar = ttk.Progressbar(root)
-progressbar.grid(row=4, column=0, columnspan=2)
+progressbar.grid(row=4, column=0)
 
 num_epochs_label = ttk.Label(root, text='Num Epochs: ')
 num_epochs_label.grid(row=5, column=0)
@@ -194,10 +220,19 @@ num_epochs_scale.grid(row=5, column=1)
 train_button = ttk.Button(root, text='Train Model', command=lambda: train())
 train_button.grid(row=6, column=0)
 
-train_output_label = tk.Label(root, text='Training Log')
+temperature_label = tk.Label(root, text='Temperature: ')
+temperature_label.grid(row=7, column=0)
+
+temperature_scale = tk.Scale(root, from_=0, to=2, resolution=0.01, orient=tk.HORIZONTAL)
+temperature_scale.grid(row=7, column=1)
+
+generate_button = ttk.Button(root, text='Generate', command=generate)
+generate_button.grid(row=8, column=0)
+
+train_output_label = tk.Label(root, text='Log')
 train_output_label.grid(row=0, column=3, sticky='w')
 
 train_output_text = tk.Text(root, width=50, height=20, state='disabled')
-train_output_text.grid(row=1, column=3, rowspan=5)
+train_output_text.grid(row=1, column=3, rowspan=8)
 
 root.mainloop()
