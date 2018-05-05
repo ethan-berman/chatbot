@@ -12,8 +12,6 @@ import re
 
 email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
-root = tk.Tk()
-
 model = None
 mbox_filename = None
 messages = []
@@ -53,21 +51,6 @@ def select_mbox():
         mbox_filename = None
 
     mbox_label.config(text='File Selected: %s' % mbox_filename)
-
-help_button = ttk.Button(root, text='Help')
-help_button.grid(row=0, column=0)
-
-select_mbox_button = ttk.Button(root, text='Select Mbox File', command=lambda:select_mbox())
-select_mbox_button.grid(row=1, column=0)
-
-mbox_label = ttk.Label(root, text='File Selected: %s' % mbox_filename)
-mbox_label.grid(row=1, column=1)
-
-target_email_label = ttk.Label(root, text='Target Email: ')
-target_email_label.grid(row=2, column=0)
-
-target_email_entry = ttk.Entry(root)
-target_email_entry.grid(row=2, column=1)
 
 def extract_emails():
     global extracting
@@ -153,7 +136,6 @@ def stdout_callback(stdout_line):
     train_output_text.delete('1.0', tk.END)
     train_output_text.insert('1.0', stdout_line)
     train_output_text.config(state='disabled')
-    # TODO: write stdout to label
 
 # Run command externally - used to train model
 def run_command(command):
@@ -205,34 +187,63 @@ def generate():
         
     train_output_text.config(state='disabled')
 
-load_emails_button = ttk.Button(root, text='Extract Emails', command=lambda:extract_emails())
-load_emails_button.grid(row=3, column=0)
+root = tk.Tk()
+root.rowconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
 
-progressbar = ttk.Progressbar(root)
-progressbar.grid(row=4, column=0)
+# Controls Frame
+controls_frame = tk.Frame(root)
+controls_frame.grid(row=0, column=0, sticky='new')
 
-num_epochs_label = ttk.Label(root, text='Num Epochs: ')
-num_epochs_label.grid(row=5, column=0)
+help_button = ttk.Button(controls_frame, text='Help')
+help_button.grid(row=0, column=0, columnspan=2, sticky='ew')
 
-num_epochs_scale = tk.Scale(root, from_=1, to=25, resolution=1, orient=tk.HORIZONTAL)
-num_epochs_scale.grid(row=5, column=1)
+select_mbox_button = ttk.Button(controls_frame, text='Select Mbox File', command=lambda:select_mbox())
+select_mbox_button.grid(row=1, column=0, sticky='w')
 
-train_button = ttk.Button(root, text='Train Model', command=lambda: train())
-train_button.grid(row=6, column=0)
+mbox_label = ttk.Label(controls_frame, text='File Selected: %s' % mbox_filename, wraplength=120, justify=tk.LEFT)
+mbox_label.grid(row=1, column=1, sticky='ew')
 
-temperature_label = tk.Label(root, text='Temperature: ')
-temperature_label.grid(row=7, column=0)
+target_email_label = ttk.Label(controls_frame, text='Target Email: ')
+target_email_label.grid(row=2, column=0, sticky='w')
 
-temperature_scale = tk.Scale(root, from_=0, to=2, resolution=0.01, orient=tk.HORIZONTAL)
-temperature_scale.grid(row=7, column=1)
+target_email_entry = ttk.Entry(controls_frame)
+target_email_entry.grid(row=2, column=1, sticky='ew')
 
-generate_button = ttk.Button(root, text='Generate', command=generate)
-generate_button.grid(row=8, column=0)
+load_emails_button = ttk.Button(controls_frame, text='Extract Emails', command=lambda:extract_emails())
+load_emails_button.grid(row=3, column=0, columnspan=2, sticky='ew')
 
-train_output_label = tk.Label(root, text='Log')
-train_output_label.grid(row=0, column=3, sticky='w')
+progressbar = ttk.Progressbar(controls_frame)
+progressbar.grid(row=4, column=0, columnspan=2, sticky='ew')
 
-train_output_text = tk.Text(root, width=50, height=20, state='disabled')
-train_output_text.grid(row=1, column=3, rowspan=8)
+num_epochs_label = ttk.Label(controls_frame, text='Num Epochs: ')
+num_epochs_label.grid(row=5, column=0, sticky='w')
+
+num_epochs_scale = tk.Scale(controls_frame, from_=1, to=25, resolution=1, orient=tk.HORIZONTAL)
+num_epochs_scale.grid(row=5, column=1, sticky='ew')
+
+train_button = ttk.Button(controls_frame, text='Train Model', command=lambda: train())
+train_button.grid(row=6, column=0, columnspan=2, sticky='ew')
+
+temperature_label = tk.Label(controls_frame, text='Temperature: ')
+temperature_label.grid(row=7, column=0, sticky='w')
+
+temperature_scale = tk.Scale(controls_frame, from_=0, to=2, resolution=0.01, orient=tk.HORIZONTAL)
+temperature_scale.grid(row=7, column=1, sticky='ew')
+
+generate_button = ttk.Button(controls_frame, text='Generate', command=generate)
+generate_button.grid(row=8, column=0, columnspan=2, sticky='ew')
+
+# Log Frame
+log_frame = tk.Frame(root)
+log_frame.grid(row=0, column=1, sticky='nsew')
+log_frame.rowconfigure(1, weight=1)
+log_frame.columnconfigure(0, weight=1)
+
+train_output_label = tk.Label(log_frame, text='Log')
+train_output_label.grid(row=0, column=0, sticky='w')
+
+train_output_text = tk.Text(log_frame, width=50, height=20, state='disabled')
+train_output_text.grid(row=1, column=0, sticky='nsew')
 
 root.mainloop()
