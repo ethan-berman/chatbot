@@ -79,7 +79,11 @@ def extract_emails():
     def func():
         global extracting
         global messages
-        total = len(mail)
+
+        # Set small progress to indicate that mail is extracting
+        progressbar.config(value=1, maximum=100)
+
+        total = len(mail)        
 
         # Extract and filter all mail
         for i, mail_item in enumerate(mail):
