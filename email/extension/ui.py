@@ -172,7 +172,7 @@ def load_model():
     global model
     if model is not None:
         return
-    model = textgenrnn('mail.hdf5')
+    model = textgenrnn(weights_path='mail.hdf5', vocab_path='textgenrnn_vocab.json')
 
 def generate():
     load_model()
