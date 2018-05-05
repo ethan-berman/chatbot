@@ -163,7 +163,7 @@ def train():
     def func():
         global training
         num_epochs = num_epochs_scale.get()
-        run_command('./dist/model.exe --model_name=mail --input_file=mail.txt --num_epochs=%s' % num_epochs)
+        run_command('./model.exe --model_name=mail --input_file=mail.txt --num_epochs=%s' % num_epochs)
         training = False
 
     threading.Thread(target=func).start()
